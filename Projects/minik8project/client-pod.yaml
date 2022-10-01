@@ -1,0 +1,16 @@
+apiVersion: v1
+#this refers to the type of kubernetes object, Pod obj is used to run a conatiner, service obj is used to setup networking
+kind: Pod
+metadata:
+  name: client-pod
+  labels:
+    component: web
+spec:
+  containers:
+  #name of container
+    - name: client
+    #this image is same as multi image project built in docker session
+      image: stephengrider/multi-client
+      #exposing 3000 to outside world
+      ports:
+        - containerPort: 3000 

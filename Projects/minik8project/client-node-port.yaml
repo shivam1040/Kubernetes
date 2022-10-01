@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-node-port
+spec:
+#subtype of object service, this exposes a container to outside world
+  type: NodePort
+  ports:
+  #this port is used by any other pod within clusters which wants to connect to pod having 3000 port
+    - port: 3050
+    #container port defined in client-pod yaml
+      targetPort: 3000
+      #port accessible to outside world, range is 30000-32617
+      nodePort: 31515
+  selector:
+  #this will direct traffic to label type component named web in kubernetes cluster, refers to client-pod yml
+    component: web

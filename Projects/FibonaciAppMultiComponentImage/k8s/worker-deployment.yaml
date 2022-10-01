@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker
+  template:
+    metadata:
+      labels:
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: stephengrider/multi-worker
+          env:
+            - name: REDIS_HOST
+            #this is coming from redis-cluster-ip-service
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: '6379'
+#using --- one can put together multiple configuraions in one yaml file
+---

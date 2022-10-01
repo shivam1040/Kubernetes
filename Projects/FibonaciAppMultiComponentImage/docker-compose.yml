@@ -1,0 +1,65 @@
+version: '3'
+services:
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    depends_on:
+      - api
+      - clien
+    ports:
+      - '3001:80'
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+  redis:
+    image: 'redis:latest'
+  api:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      #look inside server folder for docker file dev
+      context: ./server
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      #this means do not link this folder with any external dir, do not overwrite just leave it as it get crearted
+      - /app/node_modules
+      #mapping files inside server to app dir of container, live change
+      - ./server:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=password
+      - PGPORT=5432
+    ports:
+      - 5000:5000
+  worker:
+    depends_on:
+      - redis
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379 
+    volumes:
+      - /app/node_modules
+      - ./worker:/app 
+  clien:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
